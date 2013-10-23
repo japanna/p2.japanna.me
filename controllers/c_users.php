@@ -46,15 +46,15 @@ class users_controller extends base_controller {
         echo 'You\'re signed up'; 
     }
 
-    public function login($error = NULL) {
+    public function login($error = NULL, $source = NULL) {
 
     # Setup view
         $this->template->content = View::instance('v_users_login');
         $this->template->title   = "Login";
 
     # Pass data to the view
-        
-        $this->template->content->error = $error;
+                
+        $this->template->content->source = $source;
         
     # Render template
         echo $this->template;
@@ -80,9 +80,21 @@ class users_controller extends base_controller {
 
         # If we didn't find a matching token in the database, it means login failed either by email or password
         if(!$token) {
-
-           Router::redirect("/users/login/error"); 
             
+            # Retrieve email if it's available
+            $q_email = "SELECT email 
+            FROM users 
+            WHERE email = '".$_POST['email']."'"; 
+        
+            $email = DB::instance(DB_NAME)->select_field($q_email);
+
+            # If email was not found, display an email error message
+            if(!$email) {
+                Router::redirect("/users/login/error/Email"); 
+            # Else it was a password error, display a password error message    
+            } else {
+                Router::redirect("/users/login/error/Password");
+            }
 
         # But if we did, login succeeded! 
         } else {

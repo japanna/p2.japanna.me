@@ -10,9 +10,13 @@
 
     <br><br>
 
-    <?php if(isset($error)): ?>
+    <?php if(isset($source)): ?>
         <div class='error'>
-            Login failed. Please double check your email and password.
+            <?php if($source == "Email") {
+                echo "Email Oops! " . $source . " not found. Please try again."; }
+                else {
+                    echo "PWD Oops! " . $source . " not found. Please try again."; }
+                    ?>
         </div>
         <br>
     <?php endif; ?>
