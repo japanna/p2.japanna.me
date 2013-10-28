@@ -10,11 +10,14 @@ class users_controller extends base_controller {
         echo "This is the index page";
     }
 
-    public function signup() {
+    public function signup($error = NULL, $source = NULL) {
 
         # Setup view
             $this->template->content = View::instance('v_users_signup');
             $this->template->title   = "Sign Up";
+
+            # Pass data to the view
+            $this->template->content->source = $source;
 
         # Render template
             echo $this->template;
@@ -22,6 +25,24 @@ class users_controller extends base_controller {
     }
 
     public function p_signup() {
+        # Make sure that all of the form fields are filled out (also done client side)
+        if(ctype_space($_POST['email']) OR ctype_space($_POST['password'])
+            OR ctype_space($_POST['first_name']) OR ctype_space($_POST['last_name'])) {
+            # If any of the fields are empty, display error message
+            Router::redirect("/users/signup/error/empty"); 
+        } else {
+        # Make sure that the provided email is not already in database
+            
+            # Search the db for this email 
+            # Retrieve if exists
+            $q = "SELECT email 
+            FROM users 
+            WHERE email = '".$_POST['email']."'";
+
+            $email = DB::instance(DB_NAME)->select_field($q);
+
+        # If we didn't find this email in the database, sign up
+        if(!$email) {
 
         # Store the time that the account was created and modified
         $_POST['created']  = Time::now();
@@ -34,17 +55,20 @@ class users_controller extends base_controller {
         $_POST['token'] = sha1(TOKEN_SALT.$_POST['email'].Utils::generate_random_string());
 
         # Insert user into database
+        # Note we didn't have to sanitize any of the $_POST data because we're using the insert method which does it for us
         $user_id = DB::instance(DB_NAME)->insert('users', $_POST); 
         
-        # Dump out the results of POST to see what the form submitted
-        echo '<pre>';
-        print_r($_POST);
-        echo '</pre>';  
+         # User is automatically logged in after signing up
+        setcookie("token", $_POST['token'], strtotime('+4 weeks'), '/');
 
-        # For now, just confirm they've signed up - 
-        # You should eventually make a proper View for this
-        echo 'You\'re signed up'; 
+        # Send them to the list of users
+        Router::redirect("/posts/users");
+
+        } else {
+            Router::redirect("/users/signup/error/email"); 
+        }
     }
+}
 
     public function login($error = NULL, $source = NULL) {
 
@@ -110,8 +134,20 @@ class users_controller extends base_controller {
             */
             setcookie("token", $token, strtotime('+4 weeks'), '/');
 
-            # Send them to the main page - or whever you want them to go
-            Router::redirect("/");
+            # Send them to their feed
+            Router::redirect("/posts");
+            
+            /* this works in principle, but not under login function
+            # get user's user id
+            $q = "SELECT user_id 
+            FROM users 
+            WHERE email = '".$_POST['email']."' 
+            AND password = '".$_POST['password']."'";
+
+            $user_id = DB::instance(DB_NAME)->select_field($q);
+
+            # Automatically make them follow themselves
+            Router::redirect("/posts/follow/$user_id"); */
 
         }
 

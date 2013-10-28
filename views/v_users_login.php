@@ -13,9 +13,9 @@
     <?php if(isset($source)): ?>
         <div class='error'>
             <?php if($source == "Email") {
-                echo "Email Oops! " . $source . " not found. Please try again."; }
+                echo $source . " not found. Please try again."; }
                 else {
-                    echo "PWD Oops! " . $source . " not found. Please try again."; }
+                    echo $source . " not found. Please try again."; }
                     ?>
         </div>
         <br>

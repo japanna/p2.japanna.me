@@ -17,9 +17,11 @@ class index_controller extends base_controller {
 		# Any method that loads a view will commonly start with this
 		# First, set the content of the template with a view file
 			$this->template->content = View::instance('v_index_index');
+		# Placing the login view on the landing page (but only if not logged in - see v_index_index.php)
+			$this->template->content->moreContent = View::instance('v_users_login');
 			
 		# Now set the <title> tag
-			$this->template->title = "Hello World";
+			$this->template->title = "Welcome";
 	
 		# CSS/JS includes
 			/*
