@@ -33,23 +33,20 @@ class posts_controller extends base_controller {
             Router::redirect("/posts/add/error");
         } else {
 
-        # Associate this post with this user
-        $_POST['user_id']  = $this->user->user_id;
+            # Associate this post with this user
+            $_POST['user_id']  = $this->user->user_id;
 
-        # Unix timestamp of when this post was created / modified
-        $_POST['created']  = Time::now();
-        $_POST['modified'] = Time::now();
+            # Unix timestamp of when this post was created / modified
+            $_POST['created']  = Time::now();
+            $_POST['modified'] = Time::now();
 
-        # Insert
-        # Note we didn't have to sanitize any of the $_POST data because we're using the insert method which does it for us
-        DB::instance(DB_NAME)->insert('posts', $_POST);
+            # Insert
+            # Note we didn't have to sanitize any of the $_POST data because we're using the insert method which does it for us
+            DB::instance(DB_NAME)->insert('posts', $_POST);
 
-        # Send them to their feed
+            # Send them to their feed
             Router::redirect("/posts");
-
-        # Quick and dirty feedback
-        #echo "Your post has been added. <a href='/posts/add'>Add another</a>";
-    }
+        }
     }
 
     public function index() {
@@ -66,7 +63,8 @@ class posts_controller extends base_controller {
             posts.user_id AS post_user_id,
             users_users.user_id AS follower_id,
             users.first_name,
-            users.last_name
+            users.last_name,
+            users.img
         FROM posts
         INNER JOIN users_users 
             ON posts.user_id = users_users.user_id_followed

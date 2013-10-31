@@ -6,10 +6,6 @@ class users_controller extends base_controller {
         
     } 
 
-    public function index() {
-        echo "This is the index page";
-    }
-
     public function signup($error = NULL, $source = NULL) {
 
         # Setup view
@@ -25,6 +21,13 @@ class users_controller extends base_controller {
     }
 
     public function p_signup() {
+        # If user is blank, they're not logged in; redirect them to the login page
+        if(!$this->user) {
+            Router::redirect('/');
+        }
+
+        # If they weren't redirected away, continue:
+
         # Make sure that all of the form fields are filled out (also done client side)
         if(ctype_space($_POST['email']) OR ctype_space($_POST['password'])
             OR ctype_space($_POST['first_name']) OR ctype_space($_POST['last_name'])) {
@@ -61,6 +64,15 @@ class users_controller extends base_controller {
          # User is automatically logged in after signing up
         setcookie("token", $_POST['token'], strtotime('+4 weeks'), '/');
 
+        # send signup confirmation email (+1 feature #1) 
+            $to[] = Array("name" => $_POST['first_name'].' '. $_POST['last_name'], "email" => $_POST['email']);
+            $from = Array("name" => APP_NAME, "email" => APP_EMAIL);
+            $subject = $_POST['first_name']." just signed up for Kramer!";
+            $body = "Hi, ". $_POST['first_name'].".  Welcome to Kramer, the app about nothing!";
+            $cc  = "";
+            $bcc = "";
+            //$email = Email::send($to, $from, $subject, $body, false, $cc, $bcc);
+
         # Send them to the list of users
         Router::redirect("/posts/users");
 
@@ -71,21 +83,30 @@ class users_controller extends base_controller {
 }
 
     public function login($error = NULL, $source = NULL) {
+        # If user is already logged in; redirect them to the login page
+        if($this->user) {
+            Router::redirect('/posts');
+        }
 
-    # Setup view
+        # If they weren't redirected away, continue:
+
+        # Setup view
         $this->template->content = View::instance('v_users_login');
         $this->template->title   = "Login";
 
-    # Pass data to the view
-                
+        # Pass data to the view
         $this->template->content->source = $source;
         
-    # Render template
+        # Render template
         echo $this->template;
 
     }
 
     public function p_login() {
+        # If user is blank, they're not logged in; redirect them to the login page
+        //if(!$this->user) {
+          //  Router::redirect('/');
+        //}
 
         # Sanitize the user entered data to prevent any funny-business (re: SQL Injection Attacks)
         $_POST = DB::instance(DB_NAME)->sanitize($_POST);
@@ -122,7 +143,12 @@ class users_controller extends base_controller {
 
         # But if we did, login succeeded! 
         } else {
-
+            # Store the time of this login in "last login"
+            $data = Array("last_login" => Time::now());
+        
+            # Insert time of last login
+            DB::instance(DB_NAME)->update("users", $data, "WHERE token = '$token'");
+            
             /* 
             Store this token in a cookie using setcookie()
             Important Note: *Nothing* else can echo to the page before setcookie is called
@@ -136,18 +162,6 @@ class users_controller extends base_controller {
 
             # Send them to their feed
             Router::redirect("/posts");
-            
-            /* this works in principle, but not under login function
-            # get user's user id
-            $q = "SELECT user_id 
-            FROM users 
-            WHERE email = '".$_POST['email']."' 
-            AND password = '".$_POST['password']."'";
-
-            $user_id = DB::instance(DB_NAME)->select_field($q);
-
-            # Automatically make them follow themselves
-            Router::redirect("/posts/follow/$user_id"); */
 
         }
 
@@ -173,7 +187,7 @@ class users_controller extends base_controller {
 
 }
 
-    public function profile() {
+    public function profile($user_profile = NULL) {
 
         # If user is blank, they're not logged in; redirect them to the login page
         if(!$this->user) {
@@ -184,10 +198,22 @@ class users_controller extends base_controller {
 
         # Setup view
         $this->template->content = View::instance('v_users_profile');
-        $this->template->title   = "Profile of".$this->user->first_name;
-
+        $this->template->title   = $this->user->first_name."'s profile";
+        
         # Render template
         echo $this->template;
+    }
+
+    public function p_upload() {
+
+        $data = Array("img" => $this->user->user_id.".jpg", "modified" => Time::now());
+        DB::instance(DB_NAME)->update("users", $data, "WHERE user_id = '".$this->user->user_id."'");
+
+        # Upload profile image
+        Upload::upload($_FILES, "/uploads/avatars/", array("jpg"), $this->user->user_id);
+
+        # Send them back to profile site
+        Router::redirect('/users/profile');
     }
 
   

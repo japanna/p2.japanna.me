@@ -18,7 +18,7 @@ If you want a different default time format for this app, set it below
 
 # When email is sent out from the server, where should it come from?
 # Ideally, this should match the domain name
-	define('APP_EMAIL', 'webmaster@sample-app.com'); 
+	define('APP_EMAIL', 'anna@ledyardbattell.com'); 
 
 /* 
 A email designated to receive messages from the server. Examples:
@@ -38,9 +38,9 @@ A email designated to receive messages from the server. Examples:
 
 # If your app is going to have outgoing emails, you should fill in your SMTP settings
 # For this you could use gmail SMTP or something like http://sendgrid.com/
-	//define('SMTP_HOST', '');
-	//define('SMTP_USERNAME', '');
-	//define('SMTP_PASSWORD', '');
+	define('SMTP_HOST', 'smtp.gmail.com');
+	define('SMTP_USERNAME', 'anna@ledyardbattell.com');
+	define('SMTP_PASSWORD', 'quyatud0');
 
 # For extra security, you might want to set different salts than what the core uses
 	define('PASSWORD_SALT', 'TisI&lQJvYef(M7LwXq6m(c9-jsfe&wb9IQ8Z3q5');
