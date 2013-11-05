@@ -21,16 +21,16 @@ class users_controller extends base_controller {
     }
 
     public function p_signup() {
-        # If user is blank, they're not logged in; redirect them to the login page
-        if(!$this->user) {
-            Router::redirect('/');
+        # Make sure user can't access /users/p_signup/ without submitting the form
+        if(empty($_POST['email'])) {
+            die("Members only. <a href='/'>Back</a>");
         }
 
         # If they weren't redirected away, continue:
 
         # Make sure that all of the form fields are filled out (also done client side)
         if(ctype_space($_POST['email']) OR ctype_space($_POST['password'])
-            OR ctype_space($_POST['first_name']) OR ctype_space($_POST['last_name'])) {
+            OR ctype_space($_POST['first_name']) OR ctype_space($_POST['ticker_name'])) {
             # If any of the fields are empty, display error message
             Router::redirect("/users/signup/error/empty"); 
         } else {
@@ -65,22 +65,22 @@ class users_controller extends base_controller {
         setcookie("token", $_POST['token'], strtotime('+4 weeks'), '/');
 
         # send signup confirmation email (+1 feature #1) 
-            $to[] = Array("name" => $_POST['first_name'].' '. $_POST['last_name'], "email" => $_POST['email']);
+            $to[] = Array("name" => $_POST['first_name'], "email" => $_POST['email']);
             $from = Array("name" => APP_NAME, "email" => APP_EMAIL);
-            $subject = $_POST['first_name']." just signed up for Kramer!";
-            $body = "Hi, ". $_POST['first_name'].".  Welcome to Kramer, the app about nothing!";
+            $subject = $_POST['first_name']." just signed up for Ticker!";
+            $body = "Hi, ". $_POST['first_name'].".  Welcome to Ticker!";
             $cc  = "";
             $bcc = "";
-            //$email = Email::send($to, $from, $subject, $body, false, $cc, $bcc);
+            $email = Email::send($to, $from, $subject, $body, false, $cc, $bcc);
 
-        # Send them to the list of users
-        Router::redirect("/posts/users");
+        # Make them follow themselves by default (the follow function will redirect to list of other users to follow)
+        Router::redirect("/posts/follow/$user_id");
 
         } else {
             Router::redirect("/users/signup/error/email"); 
         }
+        }
     }
-}
 
     public function login($error = NULL, $source = NULL) {
         # If user is already logged in; redirect them to the login page
@@ -103,10 +103,10 @@ class users_controller extends base_controller {
     }
 
     public function p_login() {
-        # If user is blank, they're not logged in; redirect them to the login page
-        //if(!$this->user) {
-          //  Router::redirect('/');
-        //}
+        # Make sure user can't access /users/p_login/ without submitting the form
+        if(empty($_POST['email'])) {
+            die("Members only. <a href='/'>Back</a>");
+        }
 
         # Sanitize the user entered data to prevent any funny-business (re: SQL Injection Attacks)
         $_POST = DB::instance(DB_NAME)->sanitize($_POST);
@@ -191,7 +191,7 @@ class users_controller extends base_controller {
 
         # If user is blank, they're not logged in; redirect them to the login page
         if(!$this->user) {
-            Router::redirect('/users/login');
+            Router::redirect('/');
         }
 
         # If they weren't redirected away, continue:
@@ -215,16 +215,5 @@ class users_controller extends base_controller {
         # Send them back to profile site
         Router::redirect('/users/profile');
     }
-
-  
-public function db_test(){ 
-
-# Our SQL command
-$q = "DELETE FROM users
-    WHERE email = 'samseaborn@whitehouse.gov'";
-
-# Run the command
-echo DB::instance(DB_NAME)->query($q);
-}
 
 } # end of the class

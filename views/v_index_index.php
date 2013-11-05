@@ -1,15 +1,18 @@
-<!-- 
-<h1>Welcome to <?=APP_NAME?><?php if($user) echo ', '.$user->first_name; ?></h1> -->
-
+<div id='index'>
 <!-- If not logged in, show login / signup landing page -->
 <?php if(!$user): ?>
-	<h2> Sign in  </h2>
-	
-	<?=$moreContent;?>    
-	
-	<h2>Sign up</h2>
-	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, 
-	sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat <a href='/users/signup'>volupat. </a> </p>
+	<div id='users_login'>
+	<h2>Log in</h2>
+		<?=$moreContent;?>    
+	</div>
+	<div id='users_signup'>
+		<h2>New to Ticker?</h2>
+		<p>Ticker is where stocks come to post reports - annually, quarterly, socially.</p> 
+		<p class='plus_one'>+1 Upload profile picture</p>
+		<p class='plus_one'>+1 Receive an email upon signup</p>
+		<p><a href='/users/signup'>Sign up!</a> </p>
+	</div>
+</div>
 <!-- If logged in, redirect to user's homepage -->
 <? else: Router::redirect("/posts")?>
 <?php endif; ?>
