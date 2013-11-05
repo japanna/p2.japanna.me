@@ -35,6 +35,6 @@
     
 	<?php if(isset($client_files_body)) echo $client_files_body; ?>
 </body>
-<footer>© 2013 <a href='http://www.twitter.com/japanna'>@japanna</a></footer>
+<footer> © 2013 <a href='http://www.twitter.com/japanna'>@japanna</a></footer>
 </html>
 
