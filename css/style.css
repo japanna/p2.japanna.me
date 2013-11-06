@@ -102,7 +102,7 @@ article {
     text-align: left;
 }
 
-#profile_pic {
+.profile_pic {
     float: left;
     margin-right: 15px;
 }
