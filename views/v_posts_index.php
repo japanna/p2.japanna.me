@@ -4,7 +4,7 @@
 	<article>
 		<img class="profile_pic" src="/uploads/avatars/<?=$post['img']?>" alt="<?=$post['first_name']?> <?=$post['last_name']?>" width="60" height="60">
     	<h2>$<?=$post['ticker_name']?> <span>(<?=$post['first_name']?>)</span>
-    	<time datetime="<?=Time::display($post['created'],'Y-m-d G:i')?>">
+    	<time datetime="<?=Time::display($post['created'],'Y-m-d')?>">
         <?=Time::display($post['created'])?>
     	EST</time> </h2>
 		<p><?=$post['content']?></p>
